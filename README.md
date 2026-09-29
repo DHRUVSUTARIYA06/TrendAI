@@ -32,7 +32,7 @@ You can deploy both **Backend** and **Frontend** on Vercel from this single repo
 
 ### 1. Deploy the Backend API
 1. Go to [vercel.com](https://vercel.com) and click **"Add New Project"**.
-2. Select the **`TrandAI`** repository.
+2. Select the **`TrendAI`** repository (`DHRUVSUTARIYA06/TrendAI`).
 3. In **Root Directory**, click **Edit** and select **`Backend`**.
 4. In **Environment Variables**, add:
    - `MONGODB_URI`: Your MongoDB Atlas connection string (e.g. `mongodb+srv://user:pass@cluster0...mongodb.net`)
@@ -43,7 +43,7 @@ You can deploy both **Backend** and **Frontend** on Vercel from this single repo
 
 ### 2. Deploy the Frontend Admin Studio
 1. In Vercel, click **"Add New Project"** again.
-2. Select the same **`TrandAI`** repository.
+2. Select the same **`TrendAI`** repository (`DHRUVSUTARIYA06/TrendAI`).
 3. In **Root Directory**, click **Edit** and select **`Frontend`**.
 4. In **Framework Preset**, Vercel will auto-detect **Vite**.
 5. In **Environment Variables**, add:
