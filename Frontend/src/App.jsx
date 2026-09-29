@@ -5,9 +5,14 @@ import TemplateGrid from './components/TemplateGrid';
 import TemplateModal from './components/TemplateModal';
 import CategoryModal from './components/CategoryModal';
 import PromptModal from './components/PromptModal';
-import { getCategories, getTemplates } from './api';
+import AdminLogin from './components/AdminLogin';
+import { getCategories, getTemplates, clearTestData } from './api';
 
 export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    () => Boolean(localStorage.getItem('trendai_admin_key'))
+  );
+
   const [categories, setCategories] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -48,8 +53,10 @@ export default function App() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, [selectedCategory, searchQuery]);
+    if (isAuthenticated) {
+      fetchData();
+    }
+  }, [isAuthenticated, selectedCategory, searchQuery]);
 
   const handleOpenCreateModal = () => {
     setEditingTemplate(null);
@@ -61,12 +68,39 @@ export default function App() {
     setIsTemplateModalOpen(true);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('trendai_admin_key');
+    setIsAuthenticated(false);
+  };
+
+  const handleClearTestData = async () => {
+    const confirmed = window.confirm(
+      'Are you sure you want to clean test / demo templates from MongoDB Atlas? Templates you uploaded will be preserved.'
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await clearTestData('seed');
+      alert(res.data.message || 'Test data removed successfully!');
+      await fetchData();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to remove test data.');
+    }
+  };
+
+  // If not authenticated, render Admin Access Gate
+  if (!isAuthenticated) {
+    return <AdminLogin onLoginSuccess={() => setIsAuthenticated(true)} />;
+  }
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar
         onOpenTemplateModal={handleOpenCreateModal}
         onOpenCategoryModal={() => setIsCategoryModalOpen(true)}
         isConnected={isConnected}
+        onClearTestData={handleClearTestData}
+        onLogout={handleLogout}
       />
 
       <main style={{ maxWidth: '1400px', width: '100%', margin: '0 auto', padding: '32px 24px', flex: 1 }}>
@@ -93,7 +127,7 @@ export default function App() {
         fontSize: '13px',
         color: 'var(--text-muted)'
       }}>
-        TrendAI Admin Studio • Connected to MongoDB Atlas & Flutter Mobile App
+        TrendAI Admin Studio • Protected Admin Portal • MongoDB Atlas Connected
       </footer>
 
       {/* Modals */}

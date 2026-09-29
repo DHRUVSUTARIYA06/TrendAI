@@ -1,7 +1,13 @@
 import React from 'react';
-import { Sparkles, Plus, FolderPlus, Server } from 'lucide-react';
+import { Sparkles, Plus, FolderPlus, Server, Trash2, LogOut } from 'lucide-react';
 
-export default function Navbar({ onOpenTemplateModal, onOpenCategoryModal, isConnected }) {
+export default function Navbar({
+  onOpenTemplateModal,
+  onOpenCategoryModal,
+  isConnected,
+  onClearTestData,
+  onLogout,
+}) {
   return (
     <header style={{
       borderBottom: '1px solid var(--border-color)',
@@ -116,6 +122,50 @@ export default function Navbar({ onOpenTemplateModal, onOpenCategoryModal, isCon
             <Plus size={18} />
             Upload Template
           </button>
+
+          {onClearTestData && (
+            <button
+              onClick={onClearTestData}
+              title="Remove sample/demo test templates"
+              style={{
+                background: 'rgba(239, 68, 68, 0.12)',
+                color: '#f87171',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                padding: '10px 14px',
+                borderRadius: '12px',
+                fontWeight: '600',
+                fontSize: '13px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <Trash2 size={16} />
+              <span>Clean Test Data</span>
+            </button>
+          )}
+
+          {onLogout && (
+            <button
+              onClick={onLogout}
+              title="Lock Admin Studio"
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                color: '#94a3b8',
+                border: '1px solid var(--border-color)',
+                padding: '10px 14px',
+                borderRadius: '12px',
+                fontWeight: '600',
+                fontSize: '13px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <LogOut size={16} />
+              <span>Lock</span>
+            </button>
+          )}
         </div>
       </div>
     </header>

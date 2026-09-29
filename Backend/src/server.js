@@ -8,18 +8,21 @@ const connectDB = require('./config/db');
 const { seedDatabaseIfEmpty } = require('./utils/seedData');
 const categoryRoutes = require('./routes/categoryRoutes');
 const templateRoutes = require('./routes/templateRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Connect to Database & seed if running standalone
+// Connect to Database & seed only if explicitly requested
 if (!process.env.VERCEL) {
   connectDB()
     .then(() => {
-      seedDatabaseIfEmpty();
+      if (process.env.SEED_DATA === 'true') {
+        seedDatabaseIfEmpty();
+      }
     })
     .catch((err) => {
-      console.error('Initial DB connect/seed error:', err.message);
+      console.error('Initial DB connect error:', err.message);
     });
 }
 
@@ -97,6 +100,7 @@ app.get('/api/health', async (req, res) => {
 });
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/templates', templateRoutes);
 

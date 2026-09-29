@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const Category = require('../models/Category');
+const { requireAdmin } = require('../middleware/auth');
 
-// GET /api/categories - get all categories
+// GET /api/categories - get all categories (Public)
 router.get('/', async (req, res) => {
   try {
     const categories = await Category.find().sort({ order: 1, createdAt: 1 });
@@ -16,8 +17,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST /api/categories - create a category
-router.post('/', async (req, res) => {
+// POST /api/categories - create a category (Protected Admin)
+router.post('/', requireAdmin, async (req, res) => {
   try {
     const { name, emoji, order } = req.body;
     let { slug } = req.body;
@@ -56,8 +57,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-// PUT /api/categories/:id - update a category
-router.put('/:id', async (req, res) => {
+// PUT /api/categories/:id - update a category (Protected Admin)
+router.put('/:id', requireAdmin, async (req, res) => {
   try {
     const { name, emoji, slug, order } = req.body;
     const category = await Category.findById(req.params.id);
@@ -82,8 +83,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE /api/categories/:id - delete a category
-router.delete('/:id', async (req, res) => {
+// DELETE /api/categories/:id - delete a category (Protected Admin)
+router.delete('/:id', requireAdmin, async (req, res) => {
   try {
     const category = await Category.findByIdAndDelete(req.params.id);
     if (!category) {

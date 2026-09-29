@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const Template = require('../models/Template');
 const upload = require('../middleware/upload');
+const { requireAdmin } = require('../middleware/auth');
 
 // Helper to format image URL with server host if relative
 const formatTemplateResponse = (req, template) => {
@@ -119,8 +120,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST /api/templates - create a template (supports file upload)
-router.post('/', upload.single('image'), async (req, res) => {
+// POST /api/templates - create a template (Protected Admin)
+router.post('/', requireAdmin, upload.single('image'), async (req, res) => {
   try {
     const { title, description, prompt, category, tag, isTrending, imageUrl } = req.body;
 
@@ -171,8 +172,52 @@ router.post('/', upload.single('image'), async (req, res) => {
   }
 });
 
-// PUT /api/templates/:id - update a template
-router.put('/:id', upload.single('image'), async (req, res) => {
+// POST /api/templates/clear-test-data - Admin endpoint to clean dummy/sample templates (Protected Admin)
+router.post('/clear-test-data', requireAdmin, async (req, res) => {
+  try {
+    const { mode } = req.body; // 'seed', 'all', or default removes seed and test uploads
+    let query = {};
+
+    if (mode === 'all') {
+      query = {};
+    } else if (mode === 'seed') {
+      const seedTitles = [
+        'Cinematic Rain Portrait',
+        'Ghibli Couple',
+        'Luxury Editorial Portrait',
+        'Neon Cyber Glow',
+        'Royal King',
+        '90s Retro Film Snapshot',
+        '3D Toy Figure',
+        'Santorini Blue Terrace',
+        'Sunset Slow Dance',
+        'Street Fashion Oversized',
+      ];
+      query = { title: { $in: seedTitles } };
+    } else {
+      // Default: clean sample templates with unsplash or test titles
+      query = {
+        $or: [
+          { imageUrl: { $regex: 'unsplash.com' } },
+          { title: /test|3d model/i },
+        ],
+      };
+    }
+
+    const result = await Template.deleteMany(query);
+
+    res.json({
+      success: true,
+      message: `Cleaned test data successfully. Deleted ${result.deletedCount} templates.`,
+      deletedCount: result.deletedCount,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// PUT /api/templates/:id - update a template (Protected Admin)
+router.put('/:id', requireAdmin, upload.single('image'), async (req, res) => {
   try {
     const template = await Template.findById(req.params.id);
     if (!template) {
@@ -213,8 +258,8 @@ router.put('/:id', upload.single('image'), async (req, res) => {
   }
 });
 
-// DELETE /api/templates/:id - delete a template
-router.delete('/:id', async (req, res) => {
+// DELETE /api/templates/:id - delete a template (Protected Admin)
+router.delete('/:id', requireAdmin, async (req, res) => {
   try {
     const template = await Template.findByIdAndDelete(req.params.id);
     if (!template) {
