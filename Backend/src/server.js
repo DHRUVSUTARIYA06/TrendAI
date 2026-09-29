@@ -31,7 +31,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Ensure database connection for serverless requests
 app.use(async (req, res, next) => {
-  // Allow health check to respond immediately
+  // Allow health check and root to respond immediately
   if (req.path === '/api/health' || req.path === '/') {
     return next();
   }
@@ -40,7 +40,13 @@ app.use(async (req, res, next) => {
     next();
   } catch (err) {
     console.error('DB Connection middleware error:', err.message);
-    res.status(500).json({ success: false, message: 'Database connection failed' });
+    res.status(500).json({
+      success: false,
+      message: `Database connection error: ${err.message}`,
+      hint: !process.env.MONGODB_URI
+        ? 'MONGODB_URI is not set in Vercel environment variables'
+        : 'Check MongoDB Atlas Network Access (ensure 0.0.0.0/0 is whitelisted)',
+    });
   }
 });
 
@@ -61,11 +67,31 @@ app.get('/', (req, res) => {
 });
 
 // Health check endpoint
-app.get('/api/health', (req, res) => {
+app.get('/api/health', async (req, res) => {
+  let dbStatus = 'disconnected';
+  let dbError = null;
+
+  try {
+    if (process.env.MONGODB_URI) {
+      await connectDB();
+      dbStatus = 'connected';
+    } else {
+      dbStatus = 'missing_MONGODB_URI_env_variable';
+    }
+  } catch (err) {
+    dbStatus = 'connection_error';
+    dbError = err.message;
+  }
+
   res.json({
     status: 'ok',
     message: 'TrendAI Backend API is up and running!',
     environment: process.env.VERCEL ? 'vercel-serverless' : 'standalone',
+    database: {
+      status: dbStatus,
+      hasUriConfigured: Boolean(process.env.MONGODB_URI),
+      error: dbError,
+    },
     timestamp: new Date().toISOString(),
   });
 });

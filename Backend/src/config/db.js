@@ -13,14 +13,16 @@ const connectDB = async () => {
 
   const uri = process.env.MONGODB_URI;
   if (!uri) {
-    console.warn('⚠️ MONGODB_URI environment variable is missing');
-    return null;
+    const msg = 'MONGODB_URI environment variable is not set. Please set MONGODB_URI in your Vercel Project Settings > Environment Variables.';
+    console.error(`⚠️ ${msg}`);
+    throw new Error(msg);
   }
 
   if (!cached.promise) {
     const opts = {
       dbName: process.env.MONGODB_DBNAME || 'trendai',
       bufferCommands: false,
+      serverSelectionTimeoutMS: 5000,
     };
 
     cached.promise = mongoose.connect(uri, opts).then((mongooseInstance) => {

@@ -380,14 +380,14 @@ class HomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Backend API URL (Your PC\'s Wi-Fi IP):',
+              'Backend API URL (Cloud or Local):',
               style: TextStyle(fontSize: 13, color: Colors.grey),
             ),
             const SizedBox(height: 10),
             TextField(
               controller: controller,
               decoration: InputDecoration(
-                hintText: 'http://192.168.0.106:5000/api',
+                hintText: 'https://trend-ai-ten.vercel.app/api',
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 isDense: true,
               ),

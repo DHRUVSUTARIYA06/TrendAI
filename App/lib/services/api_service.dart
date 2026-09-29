@@ -16,22 +16,18 @@ class ApiService {
     if (_customBaseUrl != null && _customBaseUrl!.isNotEmpty) {
       return _customBaseUrl!;
     }
-    if (kIsWeb) {
-      return 'http://localhost:5000/api';
-    }
-    if (Platform.isAndroid) {
-      // Host machine's Wi-Fi IP address so physical Android device can connect over Wi-Fi
-      return 'http://192.168.0.106:5000/api';
-    }
-    return 'http://localhost:5000/api';
+    // Live Cloud Vercel backend (works worldwide on Android, iOS, and Web)
+    return 'https://trend-ai-ten.vercel.app/api';
   }
 
   static String get hostAddress {
     try {
       final uri = Uri.parse(baseUrl);
-      return '${uri.host}:${uri.port}';
+      return uri.port != 0 && uri.port != 80 && uri.port != 443
+          ? '${uri.host}:${uri.port}'
+          : uri.host;
     } catch (_) {
-      return '192.168.0.106:5000';
+      return 'trend-ai-ten.vercel.app';
     }
   }
 
