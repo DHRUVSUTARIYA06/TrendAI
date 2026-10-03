@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Lock, KeyRound, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
-import { verifyAdminKey } from '../api';
+import { verifyAdminKey } from '../services/authService';
 
 export default function AdminLogin({ onLoginSuccess }) {
   const [passcode, setPasscode] = useState('');
@@ -42,9 +42,9 @@ export default function AdminLogin({ onLoginSuccess }) {
           <Lock size={32} />
         </div>
 
-        <h2>TrendAI Admin Studio</h2>
+        <h2>Promptoo Master Admin</h2>
         <p className="login-subtitle">
-          Enter the secure admin passcode to manage templates, categories, and AI prompts.
+          Enter the secure admin passcode to access the Promptoo Master Admin dashboard.
         </p>
 
         {error && <div className="login-error-alert">{error}</div>}
